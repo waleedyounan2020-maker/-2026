@@ -3,75 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>كشف اشتراكات مؤتمر شباب وإعداد خدام</title>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;600;700&display=swap" rel="stylesheet">
+<title>كشف اشتراكات المؤتمر</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #1a3a5c; --primary-light: #2e6da4; --primary-pale: #d6e8f7;
-    --gold: #c8972a; --gold-light: #e8b84b; --gold-pale: #fef9ed;
-    --cream: #f8f6f0; --dark: #1a1a2e; --gray: #6b7280;
-    --green: #16a34a; --red: #dc2626; --border: #d1d5db;
-    --success: #dcfce7; --danger: #fee2e2;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Amiri', serif; background: var(--cream); color: var(--dark); min-height: 100vh; }
-  .header { background: linear-gradient(135deg, var(--primary) 0%, #0f2540 100%); color: white; padding: 24px 20px 20px; text-align: center; position: relative; overflow: hidden; }
-  .church-name { font-family: 'Scheherazade New', serif; font-size: 1rem; color: var(--gold-light); opacity: 0.9; margin-bottom: 6px; }
-  .conf-title { font-family: 'Scheherazade New', serif; font-size: 1.8rem; font-weight: 700; color: white; line-height: 1.3; }
-  .status-bar { text-align: center; padding: 6px; font-size: 0.95rem; min-height: 35px; background: white; border-bottom: 1px solid var(--border); font-weight: bold; }
-  .status-bar.saving { color: #d97706; }
-  .status-bar.saved { color: var(--green); }
-  .status-bar.error { color: var(--red); }
-  .summary { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 16px; background: white; border-bottom: 1px solid var(--border); }
-  .sum-card { background: var(--cream); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; text-align: center; min-width: 110px; }
-  .sum-num { font-family: 'Scheherazade New', serif; font-size: 1.6rem; font-weight: 700; color: var(--primary); }
-  .table-wrap { overflow-x: auto; padding: 16px; }
-  table { width: 100%; border-collapse: collapse; min-width: 700px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-  thead tr { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); }
-  thead th { padding: 12px 8px; font-family: 'Scheherazade New', serif; font-size: 0.9rem; color: white; text-align: center; font-weight: 700; }
-  tbody tr { border-bottom: 1px solid #f0f0f0; }
-  td { padding: 6px 5px; text-align: center; }
-  .name-input { width: 100%; border: none; background: transparent; font-family: 'Amiri', serif; font-size: 0.95rem; text-align: right; outline: none; }
-  .num-input { width: 75px; border: 1px solid transparent; background: transparent; text-align: center; outline: none; }
-  .loading-overlay { position: fixed; inset: 0; background: rgba(248,246,240,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  :root { --primary: #1a3a5c; --gold: #c8972a; --cream: #f8f6f0; }
+  body { font-family: 'Amiri', serif; background: var(--cream); margin: 0; padding: 0; }
+  .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+  .status-bar { text-align: center; padding: 10px; font-weight: bold; background: white; border-bottom: 1px solid #ccc; min-height: 40px; }
+  .status-bar.saving { color: orange; }
+  .status-bar.saved { color: green; }
+  .status-bar.error { color: red; }
+  .table-wrap { padding: 20px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: white; }
+  th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+  th { background: var(--primary); color: white; }
+  input { width: 90%; border: none; outline: none; font-family: 'Amiri', serif; font-size: 1rem; }
+  .loading { position: fixed; inset: 0; background: white; display: flex; align-items: center; justify-content: center; z-index: 100; }
 </style>
 </head>
 <body>
 
-<div id="loading-overlay" class="loading-overlay">
-  <div style="width:40px;height:40px;border:3px solid #ccc;border-top-color:#1a3a5c;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-  <p style="margin-top:10px;">جارى تحميل البيانات...</p>
-</div>
+<div id="loading" class="loading">جاري تحميل البيانات...</div>
 
 <div class="header">
-  <div class="church-name">✞ كنيسة الشهيد العظيم مارجرجس قليوب البلد ✞</div>
-  <div class="conf-title">كشف اشتراكات مؤتمر شباب وإعداد خدام</div>
-  <div style="margin-top:10px">
-    <button onclick="toggleAdmin()" style="background:transparent;border:1px solid white;color:white;padding:5px 10px;border-radius:10px;cursor:pointer;">🔐 دخول كأدمن</button>
-  </div>
+  <h2>✞ كنيسة مارجرجس قليوب البلد </h2>
+  <p>كشف اشتراكات المؤتمر</p>
 </div>
 
-<div class="status-bar" id="status-bar"></div>
-
-<div class="summary">
-  <div class="sum-card"><div class="sum-num" id="sum-count">0</div><div class="sum-label">عدد المشتركين</div></div>
-  <div class="sum-card"><div class="sum-num" id="sum-total">0</div><div class="sum-label">إجمالي المحصل</div></div>
-  <div class="sum-card" style="background:#fee2e2"><div class="sum-num" id="sum-remaining" style="color:#dc2626">0</div><div class="sum-label">إجمالي المتبقي</div></div>
-</div>
+<div class="status-bar" id="status"></div>
 
 <div class="table-wrap">
   <table>
     <thead>
       <tr>
         <th>م</th>
-        <th style="text-align:right">الاسم</th>
-        <th style="text-align:right">الخادم المسئول</th>
+        <th>الاسم</th>
+        <th>الخادم</th>
         <th>نقدي</th>
         <th>انستا</th>
         <th>خصم</th>
-        <th>الإجمالي</th>
-        <th>المتبقي</th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -79,123 +49,79 @@
 </div>
 
 <script>
-// تصحيح الرابط والمفتاح بدقة 100%
-const SUPABASE_URL = 'https://lykmghvlqfpdrdezeozn.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5a21naHZscWZwZHJkZXplb3puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MjI5ODgsImV4cCI6MjA5MjQ5ODk4OH0.0BOQAyMbQIVkjb5uXEfIzphAveV45GiurNTAxYmvLOM';
-const H = { 
-    'apikey': SUPABASE_KEY, 
-    'Authorization': 'Bearer ' + SUPABASE_KEY, 
-    'Content-Type': 'application/json' 
-};
+// --- البيانات الأساسية (تم تنظيفها تماماً) ---
+const S_URL = 'https://lykmghvlqfpdrdezeozn.supabase.co'; 
+const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5a21naHZscWZwZHJkZXplb3puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MjI5ODgsImV4cCI6MjA5MjQ5ODk4OH0.0BOQAyMbQIVkjb5uXEfIzphAveV45GiurNTAxYmvLOM';
+const TABLE = 'conference_sheets';
+const KEY_VAL = 'conference_2026';
 
-const TOTAL_ROWS = 60;
-const BASE_PRICE = 1000;
-const TABLE_KEY = 'conference_2026';
-let rows = [];
-let saveTimer = null;
+let rows = Array.from({length: 60}, (_, i) => ({num: i+1, name: '', servant: '', naqdi: 0, insta: 0, khasm: 0}));
+let timer = null;
 
 async function loadData() {
-  rows = Array.from({length: TOTAL_ROWS}, (_,i) => ({num: i+1, name:'', servant:'', naqdi:0, insta:0, khasm:0}));
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets?sheet_key=eq.${TABLE_KEY}&select=data`, { headers: H });
-    if (!r.ok) throw new Error("Load failed");
-    const res = await r.json();
-    if (res && res[0]) {
-      res[0].data.forEach((saved, i) => { if (i < TOTAL_ROWS) rows[i] = {...rows[i], ...saved}; });
-    }
-  } catch(e) { console.error('خطأ تحميل:', e); }
+    const r = await fetch(`${S_URL}/rest/v1/${TABLE}?sheet_key=eq.${KEY_VAL}&select=data`, {
+      headers: { 'apikey': S_KEY, 'Authorization': `Bearer ${S_KEY}` }
+    });
+    const d = await r.json();
+    if (d && d[0]) rows = d[0].data;
+  } catch (e) { console.error("Load Error"); }
+  render();
+  document.getElementById('loading').style.display = 'none';
 }
 
 async function saveData() {
-  setStatus('saving', '💾 جارى الحفظ الآن...');
+  document.getElementById('status').className = 'status-bar saving';
+  document.getElementById('status').textContent = '⏳ جاري الحفظ...';
+  
   try {
-    // التعديل المباشر للسطر المطلوب
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets?sheet_key=eq.${TABLE_KEY}`, {
+    const r = await fetch(`${S_URL}/rest/v1/${TABLE}?sheet_key=eq.${KEY_VAL}`, {
       method: 'PATCH',
-      headers: H,
-      body: JSON.stringify({ 
-        data: rows, 
-        updated_at: new Date().toISOString() 
-      })
+      headers: { 
+        'apikey': S_KEY, 
+        'Authorization': `Bearer ${S_KEY}`, 
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal' 
+      },
+      body: JSON.stringify({ data: rows, updated_at: new Date() })
     });
 
-    if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Supabase Error:", errorData);
-        throw new Error("Update failed");
+    if (r.ok) {
+      document.getElementById('status').className = 'status-bar saved';
+      document.getElementById('status').textContent = '✅ تم الحفظ بنجاح';
+    } else {
+      throw new Error();
     }
-    
-    setStatus('saved', '✅ تم الحفظ وتأكيد البيانات');
-    setTimeout(() => setStatus('', ''), 2000);
-  } catch(e) { 
-    setStatus('error', '❌ فشل في التسجيل - تأكد من إعدادات SQL'); 
+  } catch (e) {
+    document.getElementById('status').className = 'status-bar error';
+    document.getElementById('status').textContent = '❌ فشل الحفظ - تأكد من الـ SQL Editor';
   }
 }
 
-function setStatus(cls, msg) {
-  const el = document.getElementById('status-bar');
-  if (el) {
-    el.className = 'status-bar ' + cls;
-    el.textContent = msg;
-  }
-}
-
-function buildTable() {
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = '';
+function render() {
+  const tb = document.getElementById('tbody');
+  tb.innerHTML = '';
   rows.forEach((row, i) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${row.num}</td>
-      <td><input type="text" class="name-input" value="${row.name||''}" oninput="updateVal(${i},'name',this.value)"></td>
-      <td><input type="text" class="name-input" value="${row.servant||''}" oninput="updateVal(${i},'servant',this.value)"></td>
-      <td><input type="number" class="num-input" value="${row.naqdi||0}" oninput="updateVal(${i},'naqdi',this.value)"></td>
-      <td><input type="number" class="num-input" value="${row.insta||0}" oninput="updateVal(${i},'insta',this.value)"></td>
-      <td><input type="number" class="num-input" value="${row.khasm||0}" oninput="updateVal(${i},'khasm',this.value)"></td>
-      <td id="total-${i}">0</td>
-      <td id="rem-${i}">0</td>
+      <td><input value="${row.name}" oninput="update(${i},'name',this.value)"></td>
+      <td><input value="${row.servant}" oninput="update(${i},'servant',this.value)"></td>
+      <td><input type="number" value="${row.naqdi}" oninput="update(${i},'naqdi',this.value)"></td>
+      <td><input type="number" value="${row.insta}" oninput="update(${i},'insta',this.value)"></td>
+      <td><input type="number" value="${row.khasm}" oninput="update(${i},'khasm',this.value)"></td>
     `;
-    tbody.appendChild(tr);
-    updateRowUI(i);
+    tb.appendChild(tr);
   });
-  updateSummary();
 }
 
-function updateVal(i, key, val) {
-  rows[i][key] = (key === 'name' || key === 'servant') ? val : parseFloat(val) || 0;
-  updateRowUI(i);
-  updateSummary();
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveData, 1000); // تقليل وقت الانتظار للحفظ أسرع
+function update(i, col, val) {
+  rows[i][col] = (col === 'name' || col === 'servant') ? val : Number(val);
+  clearTimeout(timer);
+  timer = setTimeout(saveData, 1000);
 }
 
-function updateRowUI(i) {
-  const r = rows[i];
-  const total = (r.naqdi||0) + (r.insta||0);
-  const rem = BASE_PRICE - (r.khasm||0) - total;
-  document.getElementById('total-'+i).textContent = total;
-  document.getElementById('rem-'+i).textContent = rem;
-}
-
-function updateSummary() {
-  const filled = rows.filter(r => r.name);
-  const totalCollected = rows.reduce((s,r) => s + (r.naqdi||0) + (r.insta||0), 0);
-  const totalRem = filled.reduce((s,r) => s + Math.max(0, BASE_PRICE - (r.khasm||0) - (r.naqdi||0) - (r.insta||0)), 0);
-  document.getElementById('sum-count').textContent = filled.length;
-  document.getElementById('sum-total').textContent = totalCollected;
-  document.getElementById('sum-remaining').textContent = totalRem;
-}
-
-function toggleAdmin() {
-  const p = prompt('كلمة السر:');
-  if(p === 'Waleed2026') { alert('أهلاً يا أدمن'); }
-}
-
-(async () => {
-  await loadData();
-  buildTable();
-  document.getElementById('loading-overlay').style.display = 'none';
-})();
+loadData();
 </script>
 </body>
 </html>
