@@ -79,6 +79,7 @@
 </div>
 
 <script>
+// البيانات الخاصة بك
 const SUPABASE_URL = 'https://lykmghvlqfpdrdezeozn.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5a21naHZscWZwZHJkZXplb3puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MjI5ODgsImV4cCI6MjA5MjQ5ODk4OH0.0BOQAyMbQIVkjb5uXEfIzphAveV45GiurNTAxYmvLOM';
 const H = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
@@ -93,37 +94,42 @@ async function loadData() {
   rows = Array.from({length: TOTAL_ROWS}, (_,i) => ({num: i+1, name:'', servant:'', naqdi:0, insta:0, khasm:0}));
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets?sheet_key=eq.${TABLE_KEY}&select=data`, { headers: H });
-    if (!r.ok) throw new Error("Connection failed");
+    if (!r.ok) throw new Error("Load failed");
     const res = await r.json();
     if (res && res[0]) {
       res[0].data.forEach((saved, i) => { if (i < TOTAL_ROWS) rows[i] = {...rows[i], ...saved}; });
     }
-  } catch(e) { console.error('فشل التحميل، سيتم البدء بجدول فارغ:', e); }
+  } catch(e) { console.error('Load error:', e); }
 }
 
 async function saveData() {
   setStatus('saving', '💾 جارى الحفظ...');
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets`, {
-      method: 'POST',
-      headers: { ...H, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-      body: JSON.stringify({ sheet_key: TABLE_KEY, data: rows, updated_at: new Date().toISOString() })
+    // طريقة الـ PATCH لتعديل السطر الموجود فعلياً
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets?sheet_key=eq.${TABLE_KEY}`, {
+      method: 'PATCH',
+      headers: H,
+      body: JSON.stringify({ 
+        data: rows, 
+        updated_at: new Date().toISOString() 
+      })
     });
-    if (!res.ok) {
-       await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets?sheet_key=eq.${TABLE_KEY}`, {
-        method: 'PATCH',
-        headers: H,
-        body: JSON.stringify({ data: rows, updated_at: new Date().toISOString() })
-      });
-    }
-    setStatus('saved', '✅ تم الحفظ تلقائياً');
-  } catch(e) { setStatus('error', '❌ خطأ في الاتصال بالحفظ'); }
+
+    if (!res.ok) throw new Error("Update failed");
+    setStatus('saved', '✅ تم الحفظ بنجاح');
+    setTimeout(() => setStatus('', ''), 2000);
+  } catch(e) { 
+    console.error(e);
+    setStatus('error', '❌ فشل في تسجيل البيانات'); 
+  }
 }
 
 function setStatus(cls, msg) {
   const el = document.getElementById('status-bar');
-  el.className = 'status-bar ' + cls;
-  el.textContent = msg;
+  if (el) {
+    el.className = 'status-bar ' + cls;
+    el.textContent = msg;
+  }
 }
 
 function buildTable() {
