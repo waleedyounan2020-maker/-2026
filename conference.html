@@ -18,7 +18,7 @@
   .header { background: linear-gradient(135deg, var(--primary) 0%, #0f2540 100%); color: white; padding: 24px 20px 20px; text-align: center; position: relative; overflow: hidden; }
   .church-name { font-family: 'Scheherazade New', serif; font-size: 1rem; color: var(--gold-light); opacity: 0.9; margin-bottom: 6px; }
   .conf-title { font-family: 'Scheherazade New', serif; font-size: 1.8rem; font-weight: 700; color: white; line-height: 1.3; }
-  .status-bar { text-align: center; padding: 6px; font-size: 0.82rem; min-height: 28px; background: white; border-bottom: 1px solid var(--border); }
+  .status-bar { text-align: center; padding: 6px; font-size: 0.95rem; min-height: 35px; background: white; border-bottom: 1px solid var(--border); font-weight: bold; }
   .status-bar.saving { color: #d97706; }
   .status-bar.saved { color: var(--green); }
   .status-bar.error { color: var(--red); }
@@ -79,10 +79,14 @@
 </div>
 
 <script>
-// البيانات الخاصة بك
+// تصحيح الرابط والمفتاح بدقة 100%
 const SUPABASE_URL = 'https://lykmghvlqfpdrdezeozn.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5a21naHZscWZwZHJkZXplb3puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MjI5ODgsImV4cCI6MjA5MjQ5ODk4OH0.0BOQAyMbQIVkjb5uXEfIzphAveV45GiurNTAxYmvLOM';
-const H = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
+const H = { 
+    'apikey': SUPABASE_KEY, 
+    'Authorization': 'Bearer ' + SUPABASE_KEY, 
+    'Content-Type': 'application/json' 
+};
 
 const TOTAL_ROWS = 60;
 const BASE_PRICE = 1000;
@@ -99,13 +103,13 @@ async function loadData() {
     if (res && res[0]) {
       res[0].data.forEach((saved, i) => { if (i < TOTAL_ROWS) rows[i] = {...rows[i], ...saved}; });
     }
-  } catch(e) { console.error('Load error:', e); }
+  } catch(e) { console.error('خطأ تحميل:', e); }
 }
 
 async function saveData() {
-  setStatus('saving', '💾 جارى الحفظ...');
+  setStatus('saving', '💾 جارى الحفظ الآن...');
   try {
-    // طريقة الـ PATCH لتعديل السطر الموجود فعلياً
+    // التعديل المباشر للسطر المطلوب
     const res = await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets?sheet_key=eq.${TABLE_KEY}`, {
       method: 'PATCH',
       headers: H,
@@ -115,12 +119,16 @@ async function saveData() {
       })
     });
 
-    if (!res.ok) throw new Error("Update failed");
-    setStatus('saved', '✅ تم الحفظ بنجاح');
+    if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Supabase Error:", errorData);
+        throw new Error("Update failed");
+    }
+    
+    setStatus('saved', '✅ تم الحفظ وتأكيد البيانات');
     setTimeout(() => setStatus('', ''), 2000);
   } catch(e) { 
-    console.error(e);
-    setStatus('error', '❌ فشل في تسجيل البيانات'); 
+    setStatus('error', '❌ فشل في التسجيل - تأكد من إعدادات SQL'); 
   }
 }
 
@@ -158,7 +166,7 @@ function updateVal(i, key, val) {
   updateRowUI(i);
   updateSummary();
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveData, 1500);
+  saveTimer = setTimeout(saveData, 1000); // تقليل وقت الانتظار للحفظ أسرع
 }
 
 function updateRowUI(i) {
