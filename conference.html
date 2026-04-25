@@ -34,26 +34,21 @@
   .name-input { width: 100%; border: none; background: transparent; font-family: 'Amiri', serif; font-size: 0.95rem; text-align: right; outline: none; }
   .num-input { width: 75px; border: 1px solid transparent; background: transparent; text-align: center; outline: none; }
   .loading-overlay { position: fixed; inset: 0; background: rgba(248,246,240,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
-  .price-note { text-align: center; background: var(--gold-pale); border: 1px solid #fcd34d; border-radius: 8px; margin: 10px 16px; padding: 8px; font-size: 0.85rem; color: var(--gold); }
-  .calc-cell { font-family: 'Scheherazade New', serif; font-weight: 700; }
-  .remaining-positive { color: var(--red); }
-  .remaining-zero { color: var(--green); }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
 <div id="loading-overlay" class="loading-overlay">
-  <div class="spinner" style="width:40px;height:40px;border:3px solid #ccc;border-top-color:#1a3a5c;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-  <p style="margin-top:10px; font-family:'Amiri',serif;">جارى تحميل البيانات...</p>
+  <div style="width:40px;height:40px;border:3px solid #ccc;border-top-color:#1a3a5c;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+  <p style="margin-top:10px;">جارى تحميل البيانات...</p>
 </div>
-<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 
 <div class="header">
   <div class="church-name">✞ كنيسة الشهيد العظيم مارجرجس قليوب البلد ✞</div>
   <div class="conf-title">كشف اشتراكات مؤتمر شباب وإعداد خدام</div>
-  <div class="conf-date">📅 الأيام ١٧ - ١٨ - ١٩ من شهر سبتمبر</div>
   <div style="margin-top:10px">
-    <button id="admin-btn" onclick="toggleAdmin()" style="background:transparent;border:1.5px solid rgba(255,255,255,0.4);color:white;padding:5px 15px;border-radius:15px;cursor:pointer;">🔐 دخول كأدمن</button>
+    <button onclick="toggleAdmin()" style="background:transparent;border:1px solid white;color:white;padding:5px 10px;border-radius:10px;cursor:pointer;">🔐 دخول كأدمن</button>
   </div>
 </div>
 
@@ -65,15 +60,13 @@
   <div class="sum-card" style="background:#fee2e2"><div class="sum-num" id="sum-remaining" style="color:#dc2626">0</div><div class="sum-label">إجمالي المتبقي</div></div>
 </div>
 
-<div class="price-note">💰 سعر الاشتراك الأساسي: 1000 جنيه للفرد</div>
-
 <div class="table-wrap">
   <table>
     <thead>
       <tr>
         <th>م</th>
         <th style="text-align:right">الاسم</th>
-        <th style="text-align:right">الخادم</th>
+        <th style="text-align:right">الخادم المسئول</th>
         <th>نقدي</th>
         <th>انستا</th>
         <th>خصم</th>
@@ -86,7 +79,6 @@
 </div>
 
 <script>
-// البيانات الصحيحة بناءً على رسالتك
 const SUPABASE_URL = 'https://lykmghvlqfpdrdezeozn.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5a21naHZscWZwZHJkZXplb3puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MjI5ODgsImV4cCI6MjA5MjQ5ODk4OH0.0BOQAyMbQIVkjb5uXEfIzphAveV45GiurNTAxYmvLOM';
 const H = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
@@ -94,7 +86,6 @@ const H = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, '
 const TOTAL_ROWS = 60;
 const BASE_PRICE = 1000;
 const TABLE_KEY = 'conference_2026';
-let isAdmin = false;
 let rows = [];
 let saveTimer = null;
 
@@ -102,11 +93,12 @@ async function loadData() {
   rows = Array.from({length: TOTAL_ROWS}, (_,i) => ({num: i+1, name:'', servant:'', naqdi:0, insta:0, khasm:0}));
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets?sheet_key=eq.${TABLE_KEY}&select=data`, { headers: H });
+    if (!r.ok) throw new Error("Connection failed");
     const res = await r.json();
     if (res && res[0]) {
       res[0].data.forEach((saved, i) => { if (i < TOTAL_ROWS) rows[i] = {...rows[i], ...saved}; });
     }
-  } catch(e) { console.error('Load error:', e); }
+  } catch(e) { console.error('فشل التحميل، سيتم البدء بجدول فارغ:', e); }
 }
 
 async function saveData() {
@@ -118,15 +110,14 @@ async function saveData() {
       body: JSON.stringify({ sheet_key: TABLE_KEY, data: rows, updated_at: new Date().toISOString() })
     });
     if (!res.ok) {
-      await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets?sheet_key=eq.${TABLE_KEY}`, {
+       await fetch(`${SUPABASE_URL}/rest/v1/conference_sheets?sheet_key=eq.${TABLE_KEY}`, {
         method: 'PATCH',
         headers: H,
         body: JSON.stringify({ data: rows, updated_at: new Date().toISOString() })
       });
     }
     setStatus('saved', '✅ تم الحفظ تلقائياً');
-    setTimeout(() => setStatus('', ''), 2000);
-  } catch(e) { setStatus('error', '❌ خطأ في الاتصال بقاعدة البيانات'); }
+  } catch(e) { setStatus('error', '❌ خطأ في الاتصال بالحفظ'); }
 }
 
 function setStatus(cls, msg) {
@@ -147,8 +138,8 @@ function buildTable() {
       <td><input type="number" class="num-input" value="${row.naqdi||0}" oninput="updateVal(${i},'naqdi',this.value)"></td>
       <td><input type="number" class="num-input" value="${row.insta||0}" oninput="updateVal(${i},'insta',this.value)"></td>
       <td><input type="number" class="num-input" value="${row.khasm||0}" oninput="updateVal(${i},'khasm',this.value)"></td>
-      <td id="total-${i}" class="calc-cell">0</td>
-      <td id="rem-${i}" class="calc-cell">0</td>
+      <td id="total-${i}">0</td>
+      <td id="rem-${i}">0</td>
     `;
     tbody.appendChild(tr);
     updateRowUI(i);
@@ -169,9 +160,7 @@ function updateRowUI(i) {
   const total = (r.naqdi||0) + (r.insta||0);
   const rem = BASE_PRICE - (r.khasm||0) - total;
   document.getElementById('total-'+i).textContent = total;
-  const remTd = document.getElementById('rem-'+i);
-  remTd.textContent = rem;
-  remTd.className = 'calc-cell ' + (rem <= 0 ? 'remaining-zero' : 'remaining-positive');
+  document.getElementById('rem-'+i).textContent = rem;
 }
 
 function updateSummary() {
@@ -185,7 +174,7 @@ function updateSummary() {
 
 function toggleAdmin() {
   const p = prompt('كلمة السر:');
-  if(p === 'Waleed2026') { isAdmin = true; alert('أهلاً يا أدمن'); }
+  if(p === 'Waleed2026') { alert('أهلاً يا أدمن'); }
 }
 
 (async () => {
